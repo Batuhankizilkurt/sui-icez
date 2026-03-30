@@ -1,34 +1,17 @@
-let timerId = null;
-
-// Bildirim gönderme fonksiyonu
-const sendWaterNotification = () => {
-    self.registration.showNotification('BİK Pro 💧', {
-        body: 'su içme vaktiii! Hadi bir bardak tazelen.',
-        icon: 'https://via.placeholder.com/128/ff6b81/ffffff?text=BIK',
-        badge: 'https://via.placeholder.com/128/ff6b81/ffffff?text=BIK',
-        vibrate: [300, 100, 300],
-        tag: 'su-bildirim',
-        renotify: true
-    });
-};
-
+let timer;
 self.addEventListener('message', event => {
     if (event.data.type === 'START_TIMER') {
-        const interval = event.data.interval;
-        if (timerId) clearInterval(timerId);
-        
-        // İlk bildirimi hemen değil, belirlenen süre sonra atar
-        timerId = setInterval(sendWaterNotification, interval);
-        console.log("Zamanlayıcı başlatıldı: " + interval + "ms");
-    } 
-    
-    if (event.data.type === 'STOP_TIMER') {
-        clearInterval(timerId);
-        console.log("Zamanlayıcı durduruldu.");
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => {
+            self.registration.showNotification('BİK Pro 💧', {
+                body: 'su içme vaktiii!',
+                icon: 'https://via.placeholder.com/192/ff6b81/ffffff?text=BIK',
+                vibrate: [200, 100, 200],
+                tag: 'su-uyari'
+            });
+        }, event.data.interval);
     }
+    if (event.data.type === 'STOP_TIMER') clearInterval(timer);
 });
 
-// Service Worker'ın uykudan uyanmasını sağlar
-self.addEventListener('push', event => {
-    sendWaterNotification();
-});
+self.addEventListener('install', () => self.skipWaiting());
